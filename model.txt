@@ -217,7 +217,7 @@ def wjx(number, url, Cookie, params):
         "X-Requested-With": "XMLHttpRequest"
     }
 
-    #res = sess.post(url, headers=headers, data=data, params=params)
+    #res = sess.post(url, headers=headers, data=data, params=params, verify=False)
     print(res.text)
 
 
