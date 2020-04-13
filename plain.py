@@ -178,12 +178,32 @@ def plain(s):
                 print '#第 ' + str(num) + '题有简单跳题，以下内容放到elif list[i][0] == 1的逻辑下去'
                 relation = every.attrs["relation"]
                 relationlist = relation.split(",")
-                if type == 3 or type == 4:
-                    print 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':'
-                    print '    list[' + str(num) + '] = [1, [-3, 10]]'
-                    global relationString
-                    relationString = relationString + '            ' + 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':' + '\n'
-                    relationString = relationString + '            ' + '    list[' + str(num) + '] = [1, [-3, 10]]' + '\n'
+                k = relationlist[1].split(";")
+                if len(k) == 1:
+                    if type == 3 or type == 4:
+                        print 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':'
+                        print '    list[' + str(num) + '] = [1, [-3, 10]]'
+                        global relationString
+                        relationString = relationString + '            ' + 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':' + '\n'
+                        relationString = relationString + '            ' + '    list[' + str(num) + '] = [1, [-3, 10]]' + '\n'
+                else:
+                    if type == 3 or type == 4:
+                        xstring = ""
+                        xstring = 'if i == ' + relationlist[0] + " and ("
+                        for x in range(0, len(k)):
+                            xstring = xstring + " slice[size] != " + k[x]
+                            if x != (len(k) - 1):
+                                xstring = xstring + " or "
+                            else:
+                                xstring = xstring + " ): "
+                        print xstring
+                        print '    list[' + str(num) + '] = [1, [-3, 10]]'
+                        global relationString
+                        relationString = relationString + '            ' + xstring + '\n'
+                        relationString = relationString + '            ' + '    list[' + str(
+                            num) + '] = [1, [-3, 10]]' + '\n'
+
+
 
             num = num + 1
 
@@ -207,7 +227,7 @@ def plain(s):
     return allTitles
 
 if __name__ == '__main__':
-    curId = 70860892
+    curId = 70274289
     url = "http://www.wjx.cn/m/%s.aspx" % curId
     print len(sys.argv)
     if len(sys.argv) >= 2:
