@@ -144,7 +144,7 @@ def plain(s):
                     print '    list[' + str(num) + '] = [1, [-3, 10]]'
 
             num = num + 1
-    print '#一共' + str(num) + '个题数'
+    print '#一共' + str(num - 1) + '个题数'
 
     Soup = BeautifulSoup(s.text)
     # i = Soup.fieldset.contents
