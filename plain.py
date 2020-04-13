@@ -186,6 +186,8 @@ def plain(s):
                         global relationString
                         relationString = relationString + '            ' + 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':' + '\n'
                         relationString = relationString + '            ' + '    list[' + str(num) + '] = [1, [-3, 10]]' + '\n'
+                    else:
+                        print '第 ' + str(num) + '题有复杂跳题，我还没有研究到'
                 else:
                     if type == 3 or type == 4:
                         xstring = ""
@@ -202,6 +204,8 @@ def plain(s):
                         relationString = relationString + '            ' + xstring + '\n'
                         relationString = relationString + '            ' + '    list[' + str(
                             num) + '] = [1, [-3, 10]]' + '\n'
+                    else:
+                        print '第 ' + str(num) + '题有复杂跳题，我还没有研究到'
 
 
 
