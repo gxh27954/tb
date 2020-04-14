@@ -21,39 +21,14 @@ def makeData(n):
     for i in range(0, 200):
         list.append([1, 0])
 
-    list[1] = [1, [1, 0], [2, 20], [3, 30], [4, 0], [5, 0]]
-    list[2] = [1, [1, 30], [2, 20]]
-    list[3] = [10, [1, 60], [2, 80], [3, 70], [4, 70], [5, 85], [6, 0]]
-    list[4] = [1, [1, 10], [2, 30], [3, 20]]
-    list[5] = [1, [1, 0], [2, 0], [3, 22], [4, 35], [5, 30]]
-    list[6] = [1, [1, 0], [2, 0], [3, 23], [4, 40], [5, 27]]
-    list[7] = [1, [1, 0], [2, 0], [3, 21], [4, 36], [5, 28]]
-    list[8] = [1, [1, 0], [2, 0], [3, 23], [4, 37], [5, 26]]
-    list[9] = [1, [1, 0], [2, 0], [3, 21], [4, 36], [5, 29]]
-    list[10] = [1, [1, 0], [2, 0], [3, 21], [4, 35], [5, 29]]
-    list[11] = [1, [1, 0], [2, 0], [3, 20], [4, 38], [5, 29]]
-    list[12] = [1, [1, 0], [2, 0], [3, 21], [4, 38], [5, 26]]
-    list[13] = [1, [1, 0], [2, 0], [3, 21], [4, 39], [5, 29]]
-    list[14] = [1, [1, 0], [2, 0], [3, 22], [4, 40], [5, 30]]
-    list[15] = [1, [1, 0], [2, 0], [3, 20], [4, 36], [5, 26]]
-    list[16] = [1, [1, 0], [2, 0], [3, 21], [4, 38], [5, 26]]
-    list[17] = [1, [1, 0], [2, 0], [3, 23], [4, 35], [5, 29]]
-    list[18] = [1, [1, 0], [2, 0], [3, 22], [4, 38], [5, 27]]
-    list[19] = [1, [1, 0], [2, 0], [3, 22], [4, 36], [5, 27]]
-    list[20] = [1, [1, 0], [2, 0], [3, 23], [4, 40], [5, 30]]
-    list[21] = [1, [1, 0], [2, 0], [3, 22], [4, 38], [5, 25]]
-    list[22] = [1, [1, 0], [2, 0], [3, 22], [4, 38], [5, 30]]
-    list[23] = [1, [1, 0], [2, 0], [3, 21], [4, 35], [5, 28]]
-    list[24] = [1, [1, 0], [2, 0], [3, 23], [4, 39], [5, 26]]
-    list[25] = [1, [1, 0], [2, 0], [3, 22], [4, 36], [5, 27]]
-    list[26] = [1, [1, 0], [2, 0], [3, 23], [4, 36], [5, 29]]
-    list[27] = [1, [1, 0], [2, 0], [3, 21], [4, 39], [5, 26]]
-    list[28] = [1, [1, 0], [2, 0], [3, 20], [4, 35], [5, 26]]
+${list}
 
     data = ''
     for i in range(1, n + 1):
         # print list[i]
         data = data + str(i) + '$'  #序号
+
+
 
         dateTemp = ''
         if list[i][0] == 10:  # 多选
@@ -156,7 +131,7 @@ def makeData(n):
             size = random.randint(1, length - 1)
             dateTemp = dateTemp + str(slice[size])
 
-
+${relation}
 
 
 
@@ -244,7 +219,7 @@ def wjx(number, url, Cookie, params):
         "X-Requested-With": "XMLHttpRequest"
     }
 
-    res = sess.post(url, headers=headers, data=data, params=params, verify=False)
+    #res = sess.post(url, headers=headers, data=data, params=params, verify=False)
     print(res.text)
 
 
@@ -313,22 +288,22 @@ def getAll(curid, needTime):
 
 
 if __name__ == '__main__':
-    curId = 70354776
+    curId = ${curId}
 
     time1 = 200
     time2 = 250
     url = "https://www.wjx.cn/joinnew/processjq.ashx"
 
-    doNumber = 50  # 刷几次
-    titleNumber = 28  # 多少个题目
+    doNumber = 200  # 刷几次
+    titleNumber = ${titleNumber}  # 多少个题目
 
     for i in range(doNumber):
-        print i +1
+        print i
         needTime = time.strftime('%Y/%m/%d %H:%M:%S', time.localtime((time.time() - random.randint(time1, time2))))
         params, Cookie = getAll(curId, needTime)
 
         wjx(titleNumber, url, Cookie, params)
-        time.sleep(random.randint(20, 40))  # 277开始
+        time.sleep(random.randint(60, 80))  # 13开始
 
 
 
