@@ -4,7 +4,6 @@ import requests
 import sys
 from bs4 import BeautifulSoup
 import random
-import m
 from string import Template
 import time
 
@@ -195,7 +194,7 @@ def plain(s):
                         for x in range(0, len(k)):
                             xstring = xstring + " slice[size] != " + k[x]
                             if x != (len(k) - 1):
-                                xstring = xstring + " or "
+                                xstring = xstring + " and "
                             else:
                                 xstring = xstring + " ): "
                         print xstring
@@ -231,7 +230,7 @@ def plain(s):
     return allTitles
 
 if __name__ == '__main__':
-    curId = 70274289
+    curId = 71054024
     url = "http://www.wjx.cn/m/%s.aspx" % curId
     print len(sys.argv)
     if len(sys.argv) >= 2:
