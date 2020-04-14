@@ -39,7 +39,7 @@ def danxuan(every, num):
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' +  'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' +  'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def tiankong(every, num):
     list[num] = [1]
@@ -47,7 +47,7 @@ def tiankong(every, num):
         list[num].append(["", 10])
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def duoxuan(every, num):
     list[num] = [10]
@@ -57,7 +57,7 @@ def duoxuan(every, num):
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def zuishao(every, num, min):
     min = int(min)
@@ -68,7 +68,7 @@ def zuishao(every, num, min):
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def zuiduo(every, num, max):
     max = int(max)
@@ -79,7 +79,7 @@ def zuiduo(every, num, max):
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def xianzhi(every, num, min, max):
     min = int(min)
@@ -91,7 +91,7 @@ def xianzhi(every, num, min, max):
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def juzhen(every, num):
     list[num] = [20]
@@ -114,12 +114,12 @@ def juzhen(every, num):
     #print 'list[' + str(num) + '] = ' + str(list[num])
     print 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\'
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\' + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\' + '\n'
     for i in range(1, len(list[num])):
         print str(list[num][i]) + ', \\'
-        listString = listString + '        ' + str(list[num][i]) + ', \\' + '\n'
+        listString = listString + '    ' + str(list[num][i]) + ', \\' + '\n'
     print ']'
-    listString = listString + '        ' + ']' + '\n'
+    listString = listString + '    ' + ']' + '\n'
 
 def table(every, num):
     list[num] = [1]
@@ -138,7 +138,7 @@ def table(every, num):
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
-    listString = listString + '        ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
 def plain(s):
     Soup = BeautifulSoup(s.text)
@@ -230,7 +230,7 @@ def plain(s):
     return allTitles
 
 if __name__ == '__main__':
-    curId = 71054024
+    curId = 71476268
     url = "http://www.wjx.cn/m/%s.aspx" % curId
     print len(sys.argv)
     if len(sys.argv) >= 2:
