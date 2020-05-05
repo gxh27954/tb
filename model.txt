@@ -18,9 +18,13 @@ ip = ['101.96.0.', '210.28.0.','121.56.0.','221.207.0.','211.140.0.','222.219.0.
 
 def makeData(n):
     list = []
+    cronbach = []
+
     for i in range(0, 200):
         list.append([1, 0])
+        cronbach.append([0])
 
+        
 ${list}
 
     data = ''
@@ -130,21 +134,41 @@ ${list}
             length = len(slice)
             size = random.randint(1, length - 1)
             dateTemp = dateTemp + str(slice[size])
-
 ${relation}
 
 
-
         elif list[i][0] == 20:  # 矩阵
-            for j in range(1, len(list[i])):
+            if cronbach[i][0] != 0:
+                length = len(cronbach[i])
                 slice = []
-                for k in range(len(list[i][j])):
-                    for x in range(0, list[i][j][k][1]):
-                        slice.append(list[i][j][k][0])
-                # print slice
-                dateTemp = dateTemp + str(j) + '!' + str(slice[random.randint(0, len(slice) - 1)])
-                if j != len(list[i]) - 1:
-                    dateTemp = dateTemp + ','
+                for j in range(1, length):
+                    for k in range(0, cronbach[i][j][1]):
+                        slice.append(cronbach[i][j][0])
+                # 以上设置比例
+                length = len(slice)
+                size = slice[random.randint(1, length - 1)]
+
+                for j in range(1, len(list[i])):
+                    a = random.randint(0, 100)
+                    if a < 10:
+                        b = size - 1
+                    elif a < 90:
+                        b = size
+                    else:
+                        b = size + 1
+                    dateTemp = dateTemp + str(j) + '!' + str(b)
+                    if j != len(list[i]) - 1:
+                        dateTemp = dateTemp + ','
+            else:
+                for j in range(1, len(list[i])):
+                    slice = []
+                    for k in range(len(list[i][j])):
+                        for x in range(0, list[i][j][k][1]):
+                            slice.append(list[i][j][k][0])
+                    # print slice
+                    dateTemp = dateTemp + str(j) + '!' + str(slice[random.randint(0, len(slice) - 1)])
+                    if j != len(list[i]) - 1:
+                        dateTemp = dateTemp + ','
         elif list[i][0] == 25:
             slice = []
             length = len(list[i])
