@@ -11,6 +11,7 @@ listString = ""
 relationString = ""
 
 list = []
+typeList = [-1, ]
 for i in range(0, 200):
     list.append([1000, 0])
 
@@ -34,12 +35,52 @@ def copy_model(curId, allTitles):
 def danxuan(every, num):
     list[num] = [1]
     count = 1
-    for i in every.contents[1].children:
+    #print len(every.contents[1].contents)
+    for i in every.contents[1].contents:
+        #choice = i.find('input')
+        #print choice
+        #if choice.attrs.has_key('jumpto'):
+        #    print (str(num) + ' choice '+ str(count + 1) + ' will jumpTo '+ choice.attrs['jumpto'])
         list[num].append([count, 10])
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
     listString = listString + '    ' +  'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+
+def jumpToDanxuan(every, num):
+    if every.attrs.has_key("anyjump") and every.attrs['anyjump'] != '0':
+        to = int(every.attrs['anyjump'])
+        global relationString
+        relationString = relationString + '            ' + 'if i == ' + str(num) + \
+                         ' and slice[size] != ' + '-3' + ':' + '\n'
+        if to == 1:
+            to = len(typeList)
+        for x in range(num + 1, to):
+            if typeList[x] == 3 or typeList[x] == 4:
+                relationString = relationString + '            ' + '    list[' + str(x) + '] = [1, [-3, 10]]' + '\n'
+            else:
+                print str(x) + ' 跳题要注意'
+        return
+    count = 1
+    print len(every.contents[1].contents)
+    for i in every.contents[1].contents:
+        choice = i.find('input')
+        print choice
+        if choice.attrs.has_key('jumpto'):
+            print (str(num) + ' choice ' + str(count + 1) + ' will jumpTo ' + choice.attrs['jumpto'])
+            to = int(choice.attrs['jumpto'])
+            global relationString
+            relationString = relationString + '            ' + 'if i == ' + str(num) + \
+            ' and slice[size] == ' + str(count) + ':' + '\n'
+            if to == 1:
+                to = len(typeList)
+            for x in range(num, to):
+                if typeList[x] == 3 or typeList[x] == 4:
+                    relationString = relationString + '            ' + '    list[' + str(x) + '] = [1, [-3, 10]]' + '\n'
+                else:
+                    print str(x) + ' 跳题要注意'
+        count = count + 1
+
 
 def tiankong(every, num):
     list[num] = [1]
@@ -53,7 +94,7 @@ def duoxuan(every, num):
     list[num] = [10]
     count = 1
     for i in every.contents[1].children:
-        list[num].append([count, 80])
+        list[num].append([count, random.randint(20, 80)])
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
@@ -126,15 +167,19 @@ def table(every, num):
     count = 1
     for i in every.contents[1].table.tbody.tr.next_sibling.children:
         #print i
-        if count == 1 or count == 2:
-            list[num].append([count, 0])
+        '''
+        if count == 1:
+            list[num].append([count, 3])
+        if count == 2:
+            list[num].append([count, 10])
         if count == 3 :
             list[num].append([count, random.randint(20,  23)])
         if count == 4 :
             list[num].append([count, random.randint(35,  40)])
         if count == 5 :
-           list[num].append([count, random.randint(25,  30)])
-        #list[num].append([count, 10])
+           list[num].append([count, random.randint(15,18)])
+        '''
+        list[num].append([count, 10])
         count = count + 1
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
@@ -147,10 +192,12 @@ def plain(s):
     for i in Soup.find_all("fieldset"):
         #print i
         for every in i:
+
             if every.attrs.has_key("type") == False:
                 continue
             type = every.attrs["type"]
             type = int(type)
+            typeList.append(type)
             if type == 1:
                 tiankong(every, num)
             elif type == 3:
@@ -223,14 +270,15 @@ def plain(s):
             type = every.attrs["type"]
             type = int(type)
             if every.attrs.has_key("hasjump"):
-                print '第 ' + str(num) + '题有复杂跳题，做不了'
+                #print '第 ' + str(num) + '题有复杂跳题，做不了'
+                jumpToDanxuan(every, num)
 
             num = num + 1
 
     return allTitles
 
 if __name__ == '__main__':
-    curId = 71476268
+    curId = 74425305
     url = "http://www.wjx.cn/m/%s.aspx" % curId
     print len(sys.argv)
     if len(sys.argv) >= 2:
