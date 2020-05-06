@@ -19,12 +19,26 @@ ip = ['101.96.0.', '210.28.0.','121.56.0.','221.207.0.','211.140.0.','222.219.0.
 def makeData(n):
     list = []
     cronbach = []
+    cronbachNum = []
+
+    cronbachTemp = []
 
     for i in range(0, 200):
         list.append([1, 0])
         cronbach.append([0])
+        cronbachNum.append(0)
 
-        
+    for i in range(1, len(cronbachTemp)):
+        if type(cronbachTemp[i]) == type(10):
+            cronbach[cronbachTemp[i]] = [2, cronbachTemp[0]]
+        if type(cronbachTemp[i]) == type('10-20'):
+            c = cronbachTemp[i].split('-')
+            a = int(c[0])
+            b = int(c[1])
+            for j in range(a, b + 1):
+                cronbach[j] = [2, cronbachTemp[0]]
+    print cronbach[0:50]
+
 ${list}
 
     data = ''
@@ -124,21 +138,33 @@ ${list}
                 if j != len(list[i]) - 1:
                     dateTemp = dateTemp + '^'
         elif list[i][0] == 1:  # 单选
-            # 以下设置比例
-            length = len(list[i])
-            slice = []
-            for j in range(1, length):
-                for k in range(0, list[i][j][1]):
-                    slice.append(list[i][j][0])
-            # 以上设置比例
-            length = len(slice)
-            size = random.randint(1, length - 1)
-            dateTemp = dateTemp + str(slice[size])
+            if cronbach[i][0] == 2:
+                size = cronbachNum[cronbach[i][1]]
+                a = random.randint(0, 100)
+                if a < 10:
+                    b = size - 1
+                elif a < 90:
+                    b = size
+                else:
+                    b = size + 1
+                dateTemp = dateTemp + str(b)
+            else:
+                # 以下设置比例
+                length = len(list[i])
+                slice = []
+                for j in range(1, length):
+                    for k in range(0, list[i][j][1]):
+                        slice.append(list[i][j][0])
+                # 以上设置比例
+                length = len(slice)
+                size = random.randint(1, length - 1)
+                dateTemp = dateTemp + str(slice[size])
+                cronbachNum[i] = slice[size]
 ${relation}
 
 
         elif list[i][0] == 20:  # 矩阵
-            if cronbach[i][0] != 0:
+            if cronbach[i][0] == 1:
                 length = len(cronbach[i])
                 slice = []
                 for j in range(1, length):
@@ -147,7 +173,21 @@ ${relation}
                 # 以上设置比例
                 length = len(slice)
                 size = slice[random.randint(1, length - 1)]
+                cronbachNum[i] = size
 
+                for j in range(1, len(list[i])):
+                    a = random.randint(0, 100)
+                    if a < 10:
+                        b = size - 1
+                    elif a < 90:
+                        b = size
+                    else:
+                        b = size + 1
+                    dateTemp = dateTemp + str(j) + '!' + str(b)
+                    if j != len(list[i]) - 1:
+                        dateTemp = dateTemp + ','
+            elif cronbach[i][0] == 2:
+                size = cronbachNum[cronbach[i][1]]
                 for j in range(1, len(list[i])):
                     a = random.randint(0, 100)
                     if a < 10:
@@ -327,7 +367,7 @@ if __name__ == '__main__':
         params, Cookie = getAll(curId, needTime)
 
         wjx(titleNumber, url, Cookie, params)
-        time.sleep(random.randint(60, 80))  # 13开始
+        time.sleep(random.randint(20, 180))  # 13开始
 
 
 
