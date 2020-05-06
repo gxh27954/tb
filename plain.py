@@ -51,13 +51,13 @@ def jumpToDanxuan(every, num):
     if every.attrs.has_key("anyjump") and every.attrs['anyjump'] != '0':
         to = int(every.attrs['anyjump'])
         global relationString
-        relationString = relationString + '            ' + 'if i == ' + str(num) + \
+        relationString = relationString + '                ' + 'if i == ' + str(num) + \
                          ' and slice[size] != ' + '-3' + ':' + '\n'
         if to == 1:
             to = len(typeList)
         for x in range(num + 1, to):
             if typeList[x] == 3 or typeList[x] == 4:
-                relationString = relationString + '            ' + '    list[' + str(x) + '] = [1, [-3, 10]]' + '\n'
+                relationString = relationString + '                ' + '    list[' + str(x) + '] = [1, [-3, 10]]' + '\n'
             else:
                 print str(x) + ' 跳题要注意'
         return
@@ -70,13 +70,13 @@ def jumpToDanxuan(every, num):
             print (str(num) + ' choice ' + str(count + 1) + ' will jumpTo ' + choice.attrs['jumpto'])
             to = int(choice.attrs['jumpto'])
             global relationString
-            relationString = relationString + '            ' + 'if i == ' + str(num) + \
+            relationString = relationString + '                ' + 'if i == ' + str(num) + \
             ' and slice[size] == ' + str(count) + ':' + '\n'
             if to == 1:
                 to = len(typeList)
             for x in range(num, to):
                 if typeList[x] == 3 or typeList[x] == 4:
-                    relationString = relationString + '            ' + '    list[' + str(x) + '] = [1, [-3, 10]]' + '\n'
+                    relationString = relationString + '                ' + '    list[' + str(x) + '] = [1, [-3, 10]]' + '\n'
                 else:
                     print str(x) + ' 跳题要注意'
         count = count + 1
@@ -230,8 +230,8 @@ def plain(s):
                         print 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':'
                         print '    list[' + str(num) + '] = [1, [-3, 10]]'
                         global relationString
-                        relationString = relationString + '            ' + 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':' + '\n'
-                        relationString = relationString + '            ' + '    list[' + str(num) + '] = [1, [-3, 10]]' + '\n'
+                        relationString = relationString + '                ' + 'if i == ' + relationlist[0] + ' and slice[size] != ' + relationlist[1] + ':' + '\n'
+                        relationString = relationString + '                ' + '    list[' + str(num) + '] = [1, [-3, 10]]' + '\n'
                     else:
                         print '第 ' + str(num) + '题有复杂跳题，我还没有研究到'
                 else:
@@ -247,8 +247,8 @@ def plain(s):
                         print xstring
                         print '    list[' + str(num) + '] = [1, [-3, 10]]'
                         global relationString
-                        relationString = relationString + '            ' + xstring + '\n'
-                        relationString = relationString + '            ' + '    list[' + str(
+                        relationString = relationString + '                ' + xstring + '\n'
+                        relationString = relationString + '                ' + '    list[' + str(
                             num) + '] = [1, [-3, 10]]' + '\n'
                     else:
                         print '第 ' + str(num) + '题有复杂跳题，我还没有研究到'
@@ -278,7 +278,7 @@ def plain(s):
     return allTitles
 
 if __name__ == '__main__':
-    curId = 74425305
+    curId = 75259387
     url = "http://www.wjx.cn/m/%s.aspx" % curId
     print len(sys.argv)
     if len(sys.argv) >= 2:
