@@ -278,7 +278,7 @@ def plain(s):
     return allTitles
 
 if __name__ == '__main__':
-    curId = 75259387
+    curId = 76073381
     url = "http://www.wjx.cn/m/%s.aspx" % curId
     print len(sys.argv)
     if len(sys.argv) >= 2:
