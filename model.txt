@@ -19,24 +19,27 @@ ip = ['101.96.0.', '210.28.0.','121.56.0.','221.207.0.','211.140.0.','222.219.0.
 def makeData(n):
     list = []
     cronbach = []
+    cronbachR = []
     cronbachNum = []
 
-    cronbachTemp = []
 
     for i in range(0, 200):
         list.append([1, 0])
         cronbach.append([0])
+        cronbachR.append([0])
         cronbachNum.append(0)
 
-    for i in range(1, len(cronbachTemp)):
-        if type(cronbachTemp[i]) == type(10):
-            cronbach[cronbachTemp[i]] = [2, cronbachTemp[0]]
-        if type(cronbachTemp[i]) == type('10-20'):
-            c = cronbachTemp[i].split('-')
-            a = int(c[0])
-            b = int(c[1])
-            for j in range(a, b + 1):
-                cronbach[j] = [2, cronbachTemp[0]]
+    cronbachTemps = []
+    for cronbachTemp in cronbachTemps:
+        for i in range(1, len(cronbachTemp)):
+            if type(cronbachTemp[i]) == type(10):
+                cronbach[cronbachTemp[i]] = [2, cronbachTemp[0]]
+            if type(cronbachTemp[i]) == type('10-20'):
+                c = cronbachTemp[i].split('-')
+                a = int(c[0])
+                b = int(c[1])
+                for j in range(a, b + 1):
+                    cronbach[j] = [2, cronbachTemp[0]]
     print cronbach[0:50]
 
 ${list}
@@ -142,12 +145,16 @@ ${list}
                 size = cronbachNum[cronbach[i][1]]
                 a = random.randint(0, 100)
                 if a < 10:
-                    b = size - 1
+                    b = max(1, size - 1)
                 elif a < 90:
                     b = size
                 else:
-                    b = size + 1
-                dateTemp = dateTemp + str(b)
+                    b = min(size + 1, len(list[cronbach[i][1]]))
+
+                if cronbachR[i][0] == 1:
+                    dateTemp = dateTemp + str(cronbachR[i][1] - b + 1)
+                else:
+                    dateTemp = dateTemp + str(b)
             else:
                 # 以下设置比例
                 length = len(list[i])
@@ -178,12 +185,15 @@ ${relation}
                 for j in range(1, len(list[i])):
                     a = random.randint(0, 100)
                     if a < 10:
-                        b = size - 1
+                        b = max(1, size - 1)
                     elif a < 90:
                         b = size
                     else:
-                        b = size + 1
-                    dateTemp = dateTemp + str(j) + '!' + str(b)
+                        b = min(size + 1, len(cronbach[i]))
+                    if  cronbachR[i][0] == 1 and j in cronbachR[i][2]:
+                        dateTemp = dateTemp + str(j) + '!' + str(cronbachR[i][1] - b + 1)
+                    else:
+                        dateTemp = dateTemp + str(j) + '!' + str(b)
                     if j != len(list[i]) - 1:
                         dateTemp = dateTemp + ','
             elif cronbach[i][0] == 2:
@@ -191,12 +201,15 @@ ${relation}
                 for j in range(1, len(list[i])):
                     a = random.randint(0, 100)
                     if a < 10:
-                        b = size - 1
+                        b = max(1, size - 1)
                     elif a < 90:
                         b = size
                     else:
-                        b = size + 1
-                    dateTemp = dateTemp + str(j) + '!' + str(b)
+                        b = min(size + 1, len(cronbach[i]))
+                    if  cronbachR[i][0] == 1 and j in cronbachR[i][2]:
+                        dateTemp = dateTemp + str(j) + '!' + str(cronbachR[i][1] - b + 1)
+                    else:
+                        dateTemp = dateTemp + str(j) + '!' + str(b)
                     if j != len(list[i]) - 1:
                         dateTemp = dateTemp + ','
             else:
