@@ -4,32 +4,69 @@ import time
 import random
 import sys
 import re
+import json
+import string
+import datetime
+import os
+from urllib import quote
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
+ip = []
+cap = []
+wjx_type = "${type}"
+map_ip = {}
+ipURL = "http://api.xiequ.cn/VAD/GetIp.aspx?act=get&num=1&time=30&plat=1&re=0&type=2&so=1&ow=1&spl=1&addr=&db=1"
+for i in range(0, 200):
+    cap.append([0])
 
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-ip = ['101.96.0.', '210.28.0.','121.56.0.','221.207.0.','211.140.0.','222.219.0.','124.112.0.','153.118.0.',\
-      '125.211.0.','203.191.16.','42.50.0.','58.246.0.','219.154.0.','175.148.0.','171.112.0.','111.114.0.',\
-      '222.86.0.','219.226.0.','103.22.68.','218.67.0.','103.22.64.','101.236.0.'
-      ]
+def getIplist(appointIps=None):
+    if appointIps == None:
+        return []
+    ips = []
+    try:
+        file = open('/Users/xuanhao.guo/Downloads/ips.txt')
+        while 1:
+            line = file.readline()
+            if not line:
+                break
+            for ip in appointIps:
+                if line.find(ip) != -1:
+                    ips.append(line.split("(")[0][:-3])
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+    finally:
+        file.close()
+    print '获取到' + str(len(ips)) + '个段的ip，大约有ip数 : ' + str(250*len(ips))
+    return ips
+
+def ips():
+    global ip
+    ip = getIplist([]) #["-"]是全部地区随机的意思
 
 
+appointIP = False
+
+count = 0
 def makeData(n):
     list = []
     cronbach = []
     cronbachR = []
     cronbachNum = []
-
+    choose = []
+    hasjump = []
 
     for i in range(0, 200):
         list.append([1, 0])
         cronbach.append([0])
         cronbachR.append([0])
         cronbachNum.append(0)
+        choose.append([])
+        hasjump.append(0)
 
-    cronbachTemps = []
+    cronbachTemps = [[]]
     for cronbachTemp in cronbachTemps:
         for i in range(1, len(cronbachTemp)):
             if type(cronbachTemp[i]) == type(10):
@@ -40,16 +77,18 @@ def makeData(n):
                 b = int(c[1])
                 for j in range(a, b + 1):
                     cronbach[j] = [2, cronbachTemp[0]]
-    print cronbach[0:50]
+    # print cronbach[0:50]
+    # cronbach[6] = [1, [1, 2], [2, 5], [3, 10], [4, 10], [5, 5]]
 
 ${list}
+
+
+
 
     data = ''
     for i in range(1, n + 1):
         # print list[i]
-        data = data + str(i) + '$'  #序号
-
-
+        data = data + str(i) + '$'  # 序号
 
         dateTemp = ''
         if list[i][0] == 10:  # 多选
@@ -57,15 +96,13 @@ ${list}
             slice = []
             while len(slice) == 0:
                 for j in range(1, length):
-                    rand = random.randint(0, 100)
+                    rand = random.randint(1, 100)
                     if rand <= list[i][j][1]:
                         slice.append(list[i][j][0])
-            # size = random.randint(1, length - 1)
-            # print slice
-            # slice = random.sample(list[i][1:], len(slice))
             random.shuffle(slice)
             for j in range(0, len(slice)):
                 dateTemp = dateTemp + str(slice[j])
+                choose[i].append(slice[j])
                 if j < len(slice) - 1:
                     dateTemp = dateTemp + '|'
         elif list[i][0] == 11:  # 多选,最多选几项
@@ -78,14 +115,14 @@ ${list}
             while len(slice) == 0 or len(slice) > list[i][1]:
                 slice = []
                 for j in range(2, length):
-                    rand = random.randint(0, 100)
+                    rand = random.randint(1, 100)
                     if rand <= list[i][j][1]:
                         slice.append(list[i][j][0])
 
-            # slice = random.sample(list[i][2:], size)
             random.shuffle(slice)
             for j in range(0, len(slice)):
                 dateTemp = dateTemp + str(slice[j])
+                choose[i].append(slice[j])
                 if j < len(slice) - 1:
                     dateTemp = dateTemp + '|'
         elif list[i][0] == 12:  # 多选,最少选几项
@@ -96,12 +133,13 @@ ${list}
             while len(slice) == 0 or len(slice) < list[i][1]:
                 slice = []
                 for j in range(2, length):
-                    rand = random.randint(0, 100)
+                    rand = random.randint(1, 100)
                     if rand <= list[i][j][1]:
                         slice.append(list[i][j][0])
             random.shuffle(slice)
             for j in range(0, len(slice)):
                 dateTemp = dateTemp + str(slice[j])
+                choose[i].append(slice[j])
                 if j < len(slice) - 1:
                     dateTemp = dateTemp + '|'
 
@@ -113,12 +151,13 @@ ${list}
             while len(slice) == 0 or len(slice) < list[i][1] or len(slice) > list[i][2]:
                 slice = []
                 for j in range(3, length):
-                    rand = random.randint(0, 100)
+                    rand = random.randint(1, 100)
                     if rand <= list[i][j][1]:
                         slice.append(list[i][j][0])
             random.shuffle(slice)
             for j in range(0, len(slice)):
                 dateTemp = dateTemp + str(slice[j])
+                choose[i].append(slice[j])
                 if j < len(slice) - 1:
                     dateTemp = dateTemp + '|'
 
@@ -133,6 +172,7 @@ ${list}
                 size = random.randint(0, len(slice) - 1)
                 # slice
                 dateTemp = dateTemp + str(slice[size])
+                choose[i].append(slice[j])
                 if j < length - 1:
                     dateTemp = dateTemp + '^'
         elif list[i][0] == 16:  # 矩阵填空
@@ -144,17 +184,19 @@ ${list}
             if cronbach[i][0] == 2:
                 size = cronbachNum[cronbach[i][1]]
                 a = random.randint(0, 100)
-                if a < 10:
+                if a < 30:
                     b = max(1, size - 1)
-                elif a < 90:
+                elif a < 70:
                     b = size
                 else:
-                    b = min(size + 1, len(list[cronbach[i][1]]))
+                    b = min(size + 1, len(list[cronbach[i][1]]) - 1)
 
                 if cronbachR[i][0] == 1:
                     dateTemp = dateTemp + str(cronbachR[i][1] - b + 1)
+                    choose[i].append(cronbachR[i][1] - b + 1)
                 else:
                     dateTemp = dateTemp + str(b)
+                    choose[i].append(b)
             else:
                 # 以下设置比例
                 length = len(list[i])
@@ -164,12 +206,36 @@ ${list}
                         slice.append(list[i][j][0])
                 # 以上设置比例
                 length = len(slice)
-                size = random.randint(1, length - 1)
-                dateTemp = dateTemp + str(slice[size])
-                cronbachNum[i] = slice[size]
-${relation}
+                if cap[i][0] == 0:
+                    size = random.randint(0, length - 1)
+                    dateTemp = dateTemp + str(slice[size])
+                    choose[i].append(slice[size])
+                    cronbachNum[i] = slice[size]
 
 
+
+
+
+
+
+
+
+
+                else:
+                    while True:
+                        size = random.randint(0, length - 1)
+                        pos = 0
+                        for tr in range(1, len(list[i])):
+                            if list[i][tr][0] == slice[size]:
+                                pos = tr
+                                break
+                        global cap
+                        if cap[i][pos][1] > 0:
+                            dateTemp = dateTemp + str(slice[size])
+                            cronbachNum[i] = slice[size]
+                            choose[i].append(slice[size])
+                            cap[i][pos][1] = cap[i][pos][1] - 1
+                            break
         elif list[i][0] == 20:  # 矩阵
             if cronbach[i][0] == 1:
                 length = len(cronbach[i])
@@ -184,32 +250,38 @@ ${relation}
 
                 for j in range(1, len(list[i])):
                     a = random.randint(0, 100)
-                    if a < 10:
+                    if a < 30:
                         b = max(1, size - 1)
-                    elif a < 90:
+                    elif a < 70:
                         b = size
                     else:
-                        b = min(size + 1, len(cronbach[i]))
-                    if  cronbachR[i][0] == 1 and j in cronbachR[i][2]:
+                        b = min(size + 1, len(cronbach[i]) - 1)
+                    if cronbachR[i][0] == 1 and j in cronbachR[i][2]:
                         dateTemp = dateTemp + str(j) + '!' + str(cronbachR[i][1] - b + 1)
+                        choose[i].append(cronbachR[i][1] - b + 1)
                     else:
                         dateTemp = dateTemp + str(j) + '!' + str(b)
+                        choose[i].append(b)
                     if j != len(list[i]) - 1:
                         dateTemp = dateTemp + ','
             elif cronbach[i][0] == 2:
                 size = cronbachNum[cronbach[i][1]]
+                size = random.choice([size, max(1, size - 1), min(len(cronbach[cronbach[i][1]]) - 1, size + 1)])
                 for j in range(1, len(list[i])):
                     a = random.randint(0, 100)
-                    if a < 10:
+                    if a < 30:
                         b = max(1, size - 1)
-                    elif a < 90:
+                    elif a < 70:
                         b = size
                     else:
-                        b = min(size + 1, len(cronbach[i]))
-                    if  cronbachR[i][0] == 1 and j in cronbachR[i][2]:
+                        b = min(size + 1, len(cronbach[cronbach[i][1]]) - 1)
+
+                    if cronbachR[i][0] == 1 and j in cronbachR[i][2]:
                         dateTemp = dateTemp + str(j) + '!' + str(cronbachR[i][1] - b + 1)
+                        choose[i].append(cronbachR[i][1] - b + 1)
                     else:
                         dateTemp = dateTemp + str(j) + '!' + str(b)
+                        choose[i].append(b)
                     if j != len(list[i]) - 1:
                         dateTemp = dateTemp + ','
             else:
@@ -219,7 +291,9 @@ ${relation}
                         for x in range(0, list[i][j][k][1]):
                             slice.append(list[i][j][k][0])
                     # print slice
-                    dateTemp = dateTemp + str(j) + '!' + str(slice[random.randint(0, len(slice) - 1)])
+                    b = slice[random.randint(0, len(slice) - 1)]
+                    dateTemp = dateTemp + str(j) + '!' + str(b)
+                    choose[i].append(b)
                     if j != len(list[i]) - 1:
                         dateTemp = dateTemp + ','
         elif list[i][0] == 25:
@@ -236,6 +310,7 @@ ${relation}
                 slice.append(-2)
             for j in range(0, len(slice)):
                 dateTemp = dateTemp + str(slice[j])
+                choose[i].append(slice[j])
                 if j < len(slice) - 1:
                     dateTemp = dateTemp + ','
         elif list[i][0] == 30:
@@ -256,62 +331,343 @@ ${relation}
                 if j < len(slice) - 1:
                     dateTemp = dateTemp + '|'
         str1 = '构造第' + str(i) + '题成功'
-        # print(str1)
+        print(str1)
         data = data + dateTemp  # 答案
+
+${relation}
+
+${jump}
 
         if i < n:
             data = data + '}'  # 分隔符
 
     print data
-
     return data
 
 
-def wjx(number, url, Cookie, params):
+def AinB(A, B):
+    if B < 0:
+        B = -B
+        for a in A:
+            if a in B:
+                return False
+        return False
+    for a in A:
+        if a in B:
+            return True
+    return False
+
+def AinBALL(A, B):
+    for b in B:
+        if b not in A:
+            return False
+    return True
+
+def wjx(number, url, Cookie, params, data, ip_proxy):
     sess = requests.session()
-    data = {
-        # 'submitdata': "1$2",
-        'submitdata': makeData(number)
-        # 'submitdata':'1$1}2$3}3$17}4$7}5$4|7|9}6$1}7$3|5}8$3}9$3}10$2}11$-3}12$1|2}13$3|5|7}14$1}15$2}16$3}17$2}18$3}19$2^没有这么快}20$2}21$2|4}22$2|4}23$2}24$2}25$1}26$3}27$5'
-    }
-    # ipp = ip[random.randint(0, len(ip)-1)] + str(random.randint(0, 255))
-    # 发送post请求
-    ipp = ip[random.randint(0, len(ip) - 1)] + str(random.randint(0, 255))
-    # print ipp
+    if data == '':
+        try:
+            data = {
+                'submitdata': makeData(number)
+                # 'submitdata':'1$1}2$3}3$17}4$7}5$4|7|9}6$1}7$3|5}8$3}9$3}10$2}11$-3}12$1|2}13$3|5|7}14$1}15$2}16$3}17$2}18$3}19$2^没有这么快}20$2}21$2|4}22$2|4}23$2}24$2}25$1}26$3}27$5'
+            }
+        except Exception, e:
+            postToWx(str(params["curid"]) + ' makeData has error!')
+
+            print str(Exception)
+            print str(e)
+            print str(e.message)
+            os._exit(0)
+
+    if wjx_type == "wj":
+        host = "www.wjx.cn"
+    if wjx_type == "tp":
+        host = "tp.wjx.top"
+    if wjx_type == "ks":
+        host = "ks.wjx.top"
+
+    if str(curId).isdigit():
+        re = "https://%s/m/%s.aspx" % (host, curId)
+    else:
+        re = "https://%s/vm/%s.aspx" % (host, curId)
+
     headers = {
-        "Accept": "text/plain, */*; q=0.01",
+        "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate, br",
-        # 'X-Forwarded-For': '%d.%d.%d.%d' % (
-        # random.randint(27, 27), random.randint(109, 109), random.randint(124, 127), random.randint(0, 225)),
-        'X-Forwarded-For': ipp,
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7",
-        "Connection": "close",
+        "Connection": "keep-alive",
         "Content-Length": "519",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Content-Type": "application/x-www-form-urlencoded",
         "Cookie": Cookie,
-        "Host": "www.wjx.cn",
-        "Origin": "https://www.wjx.cn",
-        "Referer": "https://www.wjx.cn/jq/27154188.aspx",
-        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36",
-        "X-Requested-With": "XMLHttpRequest"
+        "Host": host,
+        "Origin": host,
+        "Referer": re,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
     }
+    if appointIP:
+        headers["X-Forwarded-For"] = params["ip"]
+    try:
 
-    #res = sess.post(url, headers=headers, data=data, params=params, verify=False)
-    print(res.text)
+        proxies = {"http": "http://756605998:rwb50msr@%s" % ip_proxy,
+                   "https": "https://756605998:rwb50msr@%s" % ip_proxy}
 
+        if ip_proxy == "0:0":
+            proxies = {
+                "http": "http://81.68.221.80:26881",
+                "https": "http://81.68.221.80:26881",
+            }
+        u_asec = "099%23" + ''.join(random.sample(string.ascii_letters + string.digits, 18))
+        if str(params["curid"]).isdigit():
+            url = 'https://www.wjx.cn/joinnew/processjq.ashx?curId=' + str(params["curid"])
+        else:
+            url = 'https://www.wjx.cn/joinnew/processjq.ashx?shortid=' + str(params["curid"])
+        url = url + '&starttime=' + str(
+        params["starttime"]) + '&source=' + params["source"] + '&submittype=1&ktimes=' + str(
+        params["ktimes"]) + '&hlv=1&rn=' + str(
+        params["rn"]) + '&t=' + str(int(round((time.time()) * 1000))) + '&jqnonce=' + str(
+        params["jqnonce"]) + '&jqsign=' + str(params["jqsign"]) + '&u_atype=2&u_asec=' + str(u_asec) +'&jqpram=' + str(params["jqParam"])
+
+        if wjx_type == "tp":
+            url = url + "&access_token=44_2TDADMPw8cFOCyHCC4iVvmwhnTRz3LIyRm-kshboozYxndLqe85dci8E_x0-OeHS6ULi1VK2AwIyoU-eVom7fwc9lHTLKw2pCFri1xK-94s&openid=o2Ex11Lt6V" +''.join(random.sample(string.ascii_letters + string.digits, 18)) +"&jpm=13&isMtitle=0&iwx=1"
+
+        if params.has_key("nc_token"):
+            url = url + "&" + "nc_token=" + str(params["nc_token"])
+            url = url + "&" + "nc_sig=" + str(params["nc_sig"][0])
+            url = url + "&" + "nc_csessionid=" + str(params["nc_csessionid"][0])
+            url = url + "&" + "nc_scene=" + str(params["nc_scene"][0])
+
+        res = sess.post(url, headers=headers, data=data, timeout=3, proxies=proxies)
+        print res.text
+        if res.text.find("arg1") != -1:
+            arg1 = re.search('arg1=\'[0-9A-Z]+\'', res.text).group().replace('arg1=', '').replace('\'', '')
+            cookie = getCookie(arg1)
+            print cookie
+            headers["Cookie"] = headers["Cookie"] + ";acw_sc__v2=" + str(cookie)
+            res = sess.post(url, headers=headers, data=data, proxies=proxies, timeout=3)
+            print res.text
+
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+        return False, data
+
+    if res.text.find("sojump") != -1:
+        f = open('result_' + str(params["curid"]) + '.txt', 'a+')
+        f.write('total is: ' + res.text + "\n")
+        f.write('starttime is: ' + params["starttime"] + "\n")
+        f.write('ip is: ' + str(params["ip"]) + "\n")
+        f.write('count is: ' + str(count) + "\n")
+        f.write('proxy-ip is: ' + str(proxies) + "\n")
+        f.write('answer is: ' + str(data) + "\n\n\n")
+        f.close()
+
+        f = open('cap_' + str(params["curid"]) + '.txt', 'a+')
+        f.write('cap is : ' + str(cap) + "\n")
+        f.close()
+
+        if appointIP:
+            intoDB(params["curid"], params["starttime"], str(params["ip"]), str(data))
+        else:
+            intoDB(params["curid"], params["starttime"], str(ip_proxy), str(data))
+        return True, ''
+
+    if res.text.find("问卷发布者有效期") != -1:
+        postTo(str(params["curid"]) + ' 问卷发布者有效期 has error!')
+        postToWx(str(params["curid"]) + ' 问卷发布者有效期 has error!')
+
+    if res.text.find("提交的答案不符合要求") != -1:
+        postTo(str(params["curid"]) + ' 提交的答案不符合要求 has error!')
+        postToWx(str(params["curid"]) + ' 提交的答案不符合要求 has error!')
+
+    if res.text.find("验证码") != -1:
+        postTo(str(params["curid"]) + ' 验证码 has error!')
+        postToWx(str(params["curid"]) + ' 验证码 has error!', "gz")
+
+    return False, data
+
+
+def postTo(content):
+    url = "https://openapi.seatalk.io/webhook/group/0WlJoFIbTwS7dN8SC7DXKg"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = {
+        "tag": "text",
+        "text": {"content": content}
+    }
+    try:
+        res = requests.post(url, headers=headers, data=json.dumps(data), timeout=3)
+        print res.text
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+
+def postToWx(content, people=None):
+
+    ids = ["SCT43559TGIppKngHeu9KHj7pzEiDN4Qh", "SCT43565T7BJaCybUIfZvmzEZf0KV4SVD", "SCT43564Tl7sRnSkonV0aT27RsOLM30o9", "SCT43563Tqh9AmipU9mX9MSoLLhgkZ0OO"]
+    if people == "gz":
+        ids = ["SCT43559TGIppKngHeu9KHj7pzEiDN4Qh"]
+    for id in ids:
+        url = "https://sctapi.ftqq.com/%s.send?title=%s" % (id, content + " " + time.strftime('%H:%M:%S', time.localtime((time.time()))))
+        try:
+            res = requests.get(url)
+            print res.text
+        except Exception, e:
+            print str(Exception)
+            print str(e)
+            print str(e.message)
+
+def get_city_3(appointCity=None):
+    s = ""
+    try:
+        f = open('/Users/xuanhao.guo/Downloads/city3.txt', 'r')
+        s = f.read()
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+    finally:
+        f.close()
+    city_name = []
+    for p in s.split("#"):
+        p_name = p.split('$')[0]
+        p_chilren = p.split('$')[1]
+        for city in p_chilren.split("|"):
+            for i in range(1, len(city.split(","))):
+                city_name.append(p_name+'-'+city.split(",")[0]+'-'+city.split(",")[i])
+    if appointCity == None:
+        return random.choice(city_name)
+    city_name2 = []
+    for city in city_name:
+        for appint in appointCity:
+            if city.find(appint) != -1:
+                city_name2.append(city)
+                break
+    return random.choice(city_name2)
+
+
+
+def get_city_2(appointCity=None):
+    s = ""
+    try:
+        f = open('/Users/xuanhao.guo/Downloads/city2.txt', 'r')
+        s = f.read()
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+    finally:
+        f.close()
+    city_name = []
+    for p in s.split("#"):
+        p_name = p.split('$')[0]
+        p_chilren = p.split('$')[1]
+        for city in p_chilren.split(","):
+            city_name.append(p_name+'-'+city)
+    if appointCity == None:
+        return random.choice(city_name)
+    city_name2 = []
+    for city in city_name:
+        for appint in appointCity:
+            if city.find(appint) != -1:
+                city_name2.append(city)
+                break
+    return random.choice(city_name2)
+
+def getIplist(appointIps=None):
+    if appointIps == None:
+        return []
+    ips = []
+    try:
+        file = open('/Users/xuanhao.guo/Downloads/ips.txt')
+        while 1:
+            line = file.readline()
+            if not line:
+                break
+            for ip in appointIps:
+                if line.find(ip) != -1:
+                    ips.append(line.split("(")[0][:-3])
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+    finally:
+        file.close()
+    print '获取到' + str(len(ips)) + '个段的ip，大约有ip数 : ' + str(250*len(ips))
+    return ips
+
+def get_people():
+    z = ['赵', '钱', '孙', '李', '周', '吴', '王', '郭', '牛', '黄', '范', '刘', '陈', '方', '张', '胡', '宋', '鹿', '白', '刘', '宁']
+    zx = ['一', '桐', '涵', '轩', '雨', '伟', '微', '思', '旭', '百', '彦', '杰', '铭', '芸', '安', '平', '楠', '冰', '琛', '优']
+    if random.randint(0, 10) < 7:
+        strz = z[random.randint(0, len(z) - 1)] + zx[random.randint(0, len(zx) - 1)] + zx[
+            random.randint(0, len(zx) - 1)]
+    else:
+        strz = z[random.randint(0, len(z) - 1)] + zx[random.randint(0, len(zx) - 1)]
+    return strz
+
+def get_tel():
+    x = [random.randint(130,139), random.randint(150,159), random.randint(170,179), random.randint(180,189)]
+    strx = str(x[random.randint(0, 3)])
+    for i in range(0, 8):
+        b = random.randint(0, 9)
+        strx =strx + str(b)
+    return strx
+
+
+def getCookie(x):
+    import execjs
+    # var arg1 = 'D903259129C2726AE4093900A0687AAEADDBE11F';
+    ctx = execjs.compile("""
+
+    var arg_parse = function(arg){
+    var _0x4b082b = [0xf,0x23,0x1d,0x18,0x21,0x10,0x1,0x26,0xa,0x9,0x13,0x1f,0x28,0x1b,0x16,0x17,0x19,0xd,0x6,0xb,0x27,0x12,0x14,0x8,0xe,0x15,0x20,0x1a,0x2,0x1e,0x7,0x4,0x11,0x5,0x3,0x1c,0x22,0x25,0xc,0x24];
+    var _0x4da0dc = [];
+
+    var _0xl2605e = '';
+    for (var _0x20a7bf = 0; _0x20a7bf < arg["length"]; _0x20a7bf++) {
+        var _0x385ee3 = arg.substr(_0x20a7bf,1);
+        for (var _0x217721 = 0; _0x217721 < _0x4b082b["length"]; _0x217721++) {
+            if (_0x4b082b[_0x217721] == _0x20a7bf + 1) {
+                _0x4da0dc[_0x217721] = _0x385ee3;
+            }
+        }
+    }
+    _0x12605e = _0x4da0dc["\x6a\x6f\x69\x6e"]("");
+    return _0x12605e;
+};
+
+var l = function(arg1) {
+    ;var _0x5e8b26 = '3000176000856006061501533003690027800375'
+    String["prototype"]['hexXor'] = function(_0x4e08d8) {
+        var _0x5a5d3b = '';
+        for (var _0xe89588 = 0x0; _0xe89588 < this["length"] && _0xe89588 < _0x4e08d8["length"]; _0xe89588 += 0x2) {
+            var _0x401afl = parseInt(this["slice"](_0xe89588, _0xe89588 + 0x2), 0x10);
+            var _0x105f59 = parseInt(_0x4e08d8["slice"](_0xe89588, _0xe89588 + 0x2), 0x10);
+            var _0x189e2c = (_0x401afl ^ _0x105f59)["toString"](0x10);
+            if (_0x189e2c["length"] == 0x1) {
+                _0x189e2c = '\x30' + _0x189e2c;
+            }
+            _0x5a5d3b += _0x189e2c;
+        }
+        return _0x5a5d3b;
+    };
+    var _0x23a392 = arg_parse(arg1);
+    var arg2 = _0x23a392["hexXor"](_0x5e8b26);
+    return arg2
+};
+    """)
+    return ctx.call("l", x)
 
 def json2String(data):
     json_data = dict(data)
-    # print(json_data)
-    # keys = json_data.keys()
-    # values = json_data.values()
-    # i=0
     str = ''
     for key, value in json_data.items():
         prefix = "{}={};".format(key, value)
         str += prefix
     return str.rstrip(';')
-
 
 def getJqsign(a, k):
     b = k % 10
@@ -322,67 +678,280 @@ def getJqsign(a, k):
         c = c + chr(e)
     return c
 
+def getJqParam(needTime, curid, rndnum):
+    import execjs
+    jqParamJS = ""
+    try:
+        f = open('/Users/xuanhao.guo/Downloads/jqParam.js', 'r')
+        jqParamJS = f.read()
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+    finally:
+        f.close()
+    if jqParamJS == "":
+        return 'abc'
+    ctx = execjs.compile(jqParamJS)
+    return ctx.call("abc", needTime, curid, rndnum)
 
-def getAll(curid, needTime):
-    url = 'https://www.wjx.cn/m/' + str(curid) + '.aspx'
+def intoDB(wjx_id, starttime, ip, answer):
+    import MySQLdb
+    try:
+        db = MySQLdb.connect("172.16.0.7", "root", "isd@cloud", "test", 3306, connect_timeout=5)
+        # 使用cursor()方法获取操作游标
+        cursor = db.cursor()
+
+        sql = 'INSERT INTO data_log(wjx_id, starttime, ip, answer, date) VALUE ("%s", "%s", "%s", "%s", "%s")' % (wjx_id, starttime, ip, answer, time.strftime('%Y.%m.%d',time.localtime(time.time())))
+        #print sql
+        cursor.execute(sql)
+        db.commit()
+        return
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+        return
+    finally:
+        db.close()
+
+def getFromDB():
+    import MySQLdb
+    try:
+        #db = MySQLdb.connect("106.55.33.220", "root", "isd@cloud123", "test", charset='utf8')
+        db = MySQLdb.connect("172.16.0.7", "root", "isd@cloud", "test", 3306, connect_timeout=5)
+        # 使用cursor()方法获取操作游标
+        cursor = db.cursor()
+
+        # SQL 查询语句
+        t = datetime.datetime.now() - datetime.timedelta(minutes=9)
+        t = str(t.strftime("%Y-%m-%d %H:%M:%S"))
+        sql = "SELECT * FROM salary where creat_time >= '%s' and is_use = 0 limit 1" % t
+        # 执行SQL语句
+        cursor.execute(sql)
+        # 获取所有记录列表
+        results = cursor.fetchall()
+        if len(results) <= 0:
+            return '1', '2', '3'
+        for row in results:
+            id = row[0]
+            nc_token = row[1]
+            nc_sig = row[2]
+            nc_csessionid = row[3]
+            creat_time = row[4]
+            is_use = row[5]
+            # 打印结果
+            print "id=%s,nc_token=%s,nc_sig=%s,nc_csessionid=%s,creat_time=%s,is_use=%s" % \
+                  (id, nc_token, nc_sig, nc_csessionid, creat_time, is_use)
+
+        #sql = "UPDATE salary SET is_use = 1 WHERE id = %s" % (id)
+        sql = "DELETE from salary  WHERE id <= %s" % (id)
+        cursor.execute(sql)
+        db.commit()
+        return nc_token, nc_sig, nc_csessionid
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+        print "Error: unable to fecth data"
+        return '1', '2', '3'
+    finally:
+        db.close()
+
+
+def captcha(proxy):
+    try:
+        updateToDB()
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+    try:
+        nc_token, nc_sig, nc_csessionid = getFromDB()
+        if len(nc_token) >= 5 or len(nc_sig) >= 5 or len(nc_csessionid) >= 5:
+            return nc_token, nc_sig, nc_csessionid
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+
+    print '已经告诉生产者去生成验证码了，请等待'
+    return '1', '2', '3'
+
+def getIp():
+    ip = "0:0"
+    if ip != "0:0":
+        print 'get it :' + str(ip)
+        return ip
+    url = ipURL
+    try:
+        s = requests.get(url, timeout=3)
+        return s.text
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+        return "0:0"
+
+
+def getAll(curid, needTime, ip_proxy):
+
+    if wjx_type == "wj":
+        host = "www.wjx.cn"
+    if wjx_type == "tp":
+        host = "tp.wjx.top"
+    if wjx_type == "ks":
+        host = "ks.wjx.top"
+
+    if str(curId).isdigit():
+        url = "https://%s/m/%s.aspx" % (host, curId)
+    else:
+        url = "https://%s/vm/%s.aspx" % (host, curId)
+
+
     head = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7',
         'Connection': 'keep-alive',
-        'Pragma': 'no-cache',
-        'Cache-Control': 'no-cache',
+        'Host': host,
         'Upgrade-Insecure-Requests': '1',
-        # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36',
-        'Sec-Fetch-Dest': 'document',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-User': '?1',
-        'Accept-Language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
     }
-    s = requests.get(url, headers=head, verify=False)
-    cookie = s.cookies
-    cookies_dict = requests.utils.dict_from_cookiejar(cookie)
-    c = json2String(cookies_dict)
-    rndnum = re.search("rndnum=\".+\";", s.text).group(0)[8:-2]
-    jqnonce = re.search("jqnonce=\".+\";", s.text).group(0)[9:-2]
+    ipp = "0:0"
+    if appointIP:
+        ips()
+        while True:
+            ipp = ip[random.randint(0, len(ip) - 1)] + str(random.randint(0, 255))
+            if map_ip.has_key(ipp) == False:
+                map_ip[ipp] = 1
+                break
+        f = open('map_ip_' + str(curid) + '.txt', 'a+')
+        f.write('map_ip is : ' + str(map_ip) + "\n")
+        f.close()
+        head["X-Forwarded-For"] = ipp
 
-    ktimes = random.randint(110, 428) + 2
-    jqsign = getJqsign(jqnonce, ktimes)
+    try:
+        proxies = {"http": "http://756605998:rwb50msr@%s" % ip_proxy,
+                   "https": "https://756605998:rwb50msr@%s" % ip_proxy}
 
-    params = {
-        "curid": curid,
-        "starttime": needTime,
-        "source": 'directphone',
-        "submittype": 1,
-        "ktimes": ktimes,
-        "hlv": 1,
-        "rn": rndnum,
-        "jpm": 2,
-        "t": int(time.time() * 1000),
-        "jqnonce": jqnonce,
-        "jqsign": jqsign
-    }
+        if ip_proxy == "0:0":
+            proxies = {
+                "http": "http://81.68.221.80:26881",
+                "https": "http://81.68.221.80:26881",
+            }
+
+        s = requests.get(url, headers=head, timeout=3, proxies=proxies)
+        if s.text.find("暂停") != -1:
+            postTo(str(curid) + ' 暂停了 has error!')
+            postToWx(str(curid) + ' 暂停了 has error!')
+
+        Verify = s.text.find("useAliVerify =1")
+        if str(curid).isdigit():
+            Verify = 0
+        else:
+            x1 = s.text.find("activityId =")
+            x2 = s.text[x1:].find(";")
+            curId2 = s.text[x1+12:x1+x2]
+        if Verify != -1:
+            nc_token, nc_sig, nc_csessionid = captcha(ip_proxy)
+            #s = requests.get(url, headers=head, proxies=proxies, timeout=3)
+
+        cookie = s.cookies
+        cookies_dict = requests.utils.dict_from_cookiejar(cookie)
+        c = json2String(cookies_dict)
+        rndnum = re.search("rndnum=\".+\";", s.text).group(0)[8:-2]
+        jqnonce = re.search("jqnonce=\".+\";", s.text).group(0)[9:-2]
+
+        ktimes = random.randint(110, 428) + 2
+        from urllib import quote
+        jqsign = str(quote(getJqsign(jqnonce, ktimes)))
+        ran_str1 = ''.join(random.sample(string.ascii_letters + string.digits, 18))
+        ran_str2 = ''.join(random.sample(string.ascii_letters + string.digits, 18))
+        u_asec = "099%23" + ''.join(random.sample(string.ascii_letters + string.digits, 18))
+        c = c + ";u_asec=%s;CNZZDATA4478442=cnzz_eid=%d-%d-&ntime=%d;ssxmod_itna=%s;ssxmod_ktimd=%s" % (
+        u_asec, random.randint(1, 1000), random.randint(1, 1000), random.randint(1, 1000), ran_str2, str(ktimes))
+
+        if str(curid).isdigit():
+            jqParam = getJqParam(needTime, curid, rndnum)
+        else:
+            jqParam = getJqParam(needTime, curId2, rndnum)
+
+
+        params = {
+            "curid": curid,
+            "starttime": needTime,
+            "source": 'directphone',
+            "submittype": 1,
+            "ktimes": ktimes,
+            "hlv": 1,
+            "rn": rndnum,
+            "t": int(time.time() * 1000),
+            "jqnonce": jqnonce,
+            "jqsign": jqsign,
+            "jqParam":jqParam,
+            "ip": ipp
+        }
+
+        if random.randint(1, 10) <= 5:
+            params["source"] = "微信"
+
+        if Verify != -1:
+            params["nc_token"] = nc_token
+            params["nc_sig"] = nc_sig,
+            params["nc_csessionid"] = nc_csessionid,
+            params["nc_scene"] = "ic_activity",
+    except Exception, e:
+        print str(Exception)
+        print str(e)
+        print str(e.message)
+        params, c = False, False
     return params, c
 
 
 if __name__ == '__main__':
-    curId = ${curId}
+    curId = '${curId}'
 
-    time1 = 200
-    time2 = 250
+    time1 = 120
+    time2 = 200
     url = "https://www.wjx.cn/joinnew/processjq.ashx"
 
-    doNumber = 200  # 刷几次
-    titleNumber = ${titleNumber}  # 多少个题目
+    doNumber = 100  # 刷几次
+    titleNumber = ${titleNumber}   # 多少个题目
 
-    for i in range(doNumber):
+    makeData(titleNumber)
+
+    i = 0
+    data = ''
+    while i < doNumber:
+
+
+        current_time = datetime.datetime.now()
+        while current_time.hour in range(0, 7):
+            current_time = datetime.datetime.now()
+            print 'now time is %s:%s, so we cannot run it' % (current_time.hour, current_time.minute)
+            time.sleep(60)
+
+
+        ip_proxy = getIp()
         print i
         needTime = time.strftime('%Y/%m/%d %H:%M:%S', time.localtime((time.time() - random.randint(time1, time2))))
-        params, Cookie = getAll(curId, needTime)
+        params, Cookie = getAll(curId, needTime, ip_proxy)
+        if params == False:
+            print 'a is not ok, restart!!!'
+            time.sleep(10)
+            continue
+        print 'start -- ' + str(i + 1) + ' -- '
+        print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        suc, data = wjx(titleNumber, url, Cookie, params, data, ip_proxy)
+        print 'end --' + str(i + 1) + ' -- '
+        if suc == False:
+            print 'is not ok, restart!!!'
+            time.sleep(10)
+        else:
+            global count
+            count = count + 1
+            i = i + 1
+            time.sleep(random.randint(20, 80))
 
-        wjx(titleNumber, url, Cookie, params)
-        time.sleep(random.randint(20, 180))  # 13开始
-
-
-
-
-
+    postToWx(str(curId) + ' 本次run已经完成， 共' + str(doNumber) + '份')
