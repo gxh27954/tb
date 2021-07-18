@@ -599,6 +599,12 @@ def plain(s):
 
 if __name__ == '__main__':
 
+    
+    while True:
+        f = open('aa.txt', 'a+')
+        f.write('total is \n")
+        f.close()
+        time.sleep(5)
     curId = 'tJX3n7n'
     type = "wj"
 
