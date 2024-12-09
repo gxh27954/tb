@@ -7,17 +7,23 @@ import random
 from string import Template
 import time
 import os
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8') #set default encoding to utf-8
 
 
 listString = ""
 relationString = ""
 jump = ""
+danxuan100 = []
+gundong100 = []
+gundongtable = []
 notFindList = []
 list = []
 LEN = []
 titleContent = []
 typeList = [-1, ]
-for i in range(0, 200):
+for i in range(0, 2000):
     list.append([1000, 0])
     LEN.append(0)
     notFindList.append("0")
@@ -52,17 +58,22 @@ def copy_model(curId, allTitles, type):
     global relationString
     relationString = addempty(relationString)
     jump = addempty(jump)
-    with open('model_new.txt') as f:
+
+    with open('model_new5.txt') as f:
     #with open('model3.txt') as f:
         data = f.read()
     #print listString
     #print relationString
+    print(relationString)
+    print(listString)
     data = Template(data)
-    data = data.safe_substitute(list=listString, curId=curId, titleNumber=allTitles, relation=relationString, jump=jump, type=type)
+    data = data.safe_substitute(list=listString, curId=curId, titleNumber=allTitles, relation=relationString, jump=jump, type=type, danxuan100=danxuan100, \
+                                gundongtable=gundongtable, gundong100=gundong100
+                                )
 
     #file = "0528"
     #mkdir(file)
-    filename =  str(time.strftime("%m-%d %H.%M.%S ", time.localtime()) ) + str(curId) + '.py'
+    filename =  str(time.strftime("%m-%d_%H.%M.%S_", time.localtime()) ) + str(curId) + '.py'
     with open(filename, 'w') as f:
         f.write(data)
     f.close()
@@ -87,11 +98,34 @@ def danxuan(every, num):
                     break
         print x
         for i in every.contents[x].contents:
-            list[num].append([count, random.randint(10, 10)])
+            list[num].append([count, random.randint(10, 40)])
             count = count + 1
         print 'list[' + str(num) + '] = ' + str(list[num])
         global listString
         listString = listString + '    ' +  'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+    except:
+        print 'a'
+
+
+def table(every, num):
+    notFindList[num] = "[1, [-3, 10]]"
+    list[num] = [1]
+    count = 1
+
+    x = -1
+    try:
+        for i in range(0, len(every.contents)):
+            if len(every.contents[i].get("class")) > 0:
+                if 'scale-div' in every.contents[i].get("class"):
+                    x = i
+                    break
+        for i in every.contents[x].contents[0].contents[1]:
+            list[num].append([count, random.randint(10,40)])
+            count = count + 1
+        print 'list[' + str(num) + '] = ' + str(list[num])
+        global listString
+        listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+
     except:
         print 'a'
 
@@ -190,6 +224,7 @@ def duoxuan(every, num):
     global listString
     listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
 
+
 def zuishao(every, num, min):
     notFindList[num] = "[1, [-3, 10]]"
     min = int(min)
@@ -210,6 +245,7 @@ def zuishao(every, num, min):
     print 'list[' + str(num) + '] = ' + str(list[num])
     global listString
     listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
+
 
 def zuiduo(every, num, max):
     notFindList[num] = "[1, [-3, 10]]"
@@ -266,6 +302,9 @@ def juzhen(every, num):
             rowR = rowR + 1
         if count == 1:
             column = len(row.contents)
+
+    if str(row.contents[0]).find("rowtitlediv") !=- 1:
+        column = column - 1
     #print '#num ' + str(num) + ' row is ' + str(rowR) + ' column is ' + str(column)
     for i in range(rowR):
         temp = []
@@ -289,19 +328,163 @@ def juzhen(every, num):
     listString = listString + '    ' + ']' + '\n'
 
 
-def table(every, num):
-    notFindList[num] = "[1, [-3, 10]]"
-    list[num] = [1]
-    count = 1
+def gundong(every, num):
+    list[num] = [20]
+    rows =  every.tbody
+    count = 0
+    rowR = 0
+    column = -1
     try:
-        for i in every.contents[1].table.tbody.tr.next_sibling.children:
-            list[num].append([count, random.randint(10,40)])
+        for row in rows:
+            count = count + 1
+            a = dict(row.attrs)
+            if a.has_key('id'):
+                rowR = rowR + 1
+            if count == 2:
+                #column = len(row.contents)
+                column1 = int(row.contents[0].contents[0].contents[0].attrs["max"])
+        #print '#num ' + str(num) + ' row is ' + str(rowR) + ' column is ' + str(column)
+
+        gundongtable.append(num)
+        if column1 == 100:
+            column = 5
+            gundong100.append(num)
+        else:
+            column = column1
+        rowR = rowR / 2
+        for i in range(rowR):
+            temp = []
+            for j in range(column):
+                temp.append([j + 1, random.randint(10, 50)])
+            list[num].append(temp)
+
+        #print 'list[' + str(num) + '] = ' + str(list[num])
+        print 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\'
+        global listString
+        listString = listString + '    ' + 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\' + '\n'
+        LEN[num] = len(list[num])
+        rt = "[1, ['"
+        for temp in range(1, LEN[num]):
+            rt = rt + str(temp) + "!-3^"
+
+        notFindList[num] = rt[:-1] + "', 10]]"
+        for i in range(1, len(list[num])):
+            print str(list[num][i]) + ', \\'
+            listString = listString + '    ' + str(list[num][i]) + ', \\' + '\n'
+        print ']'
+        noti = ''
+        if column1 == 100:
+            noti = '#按1~5做即可，后面会自动乘以20-random(0,19)'
+        listString = listString + '    ' + ']' + noti + '\n'
+
+    except Exception as e:
+        print(e)
+
+
+def huaidong(every, num):
+    try:
+
+        list[num] = [1]
+        import re
+        rows = every.input
+        rows = int(re.search("max=\"[0-9]+\"", str(every.input)).group(0)[5:-1])
+        count = 1
+        notFindList[num] = "[1, [-3, 10]]"
+
+        column = -1
+        if rows == 100:
+            column = 5
+            danxuan100.append(num)
+
+        else:
+            column = rows
+
+        for i in range(0, column):
+            list[num].append([count, random.randint(10, 40)])
             count = count + 1
         print 'list[' + str(num) + '] = ' + str(list[num])
         global listString
-        listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + '\n'
-    except:
-        print 'a'
+        noti = ""
+        if rows == 100:
+            noti = '#按1~5做即可，后面会自动乘以20-random(0,19)'
+        listString = listString + '    ' + 'list[' + str(num) + '] = ' + str(list[num]) + noti + '\n'
+        #print(listString)
+
+
+
+    except Exception as e:
+        print(e)
+
+
+def quanzhong(every, num):
+    list[num] = [16]
+    rows =  every.tbody
+    total = int(every.attrs["total"])
+    print(total)
+    count = 0
+    rowR = 0
+    column = -1
+    try:
+        for row in rows:
+            count = count + 1
+            a = dict(row.attrs)
+            if a.has_key('id'):
+                rowR = rowR + 1
+
+
+        rowR = rowR / 2
+        print(rowR)
+        temp = []
+        for i in range(rowR):
+            temp.append(['a%s' % i])
+        list[num].append(temp)
+
+        #print 'list[' + str(num) + '] = ' + str(list[num])
+        print 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\'
+        global listString
+        #listString = listString + '    ' + 'list[' + str(num) + '] = [' + str(list[num][0]) + ', \\' + '\n'
+        LEN[num] = len(list[num])
+        rt = "[1, ['"
+        for temp in range(1, rowR + 1):
+            rt = rt + str(temp) + "!-3^"
+
+        notFindList[num] = rt[:-1] + "', 10]]"
+
+        listString = listString + '    ' + "while True: \n"
+
+# n        while True:
+#             a1 = random.randint(3, 5)  # a
+#             a2 = random.randint(2, 4)  # c d
+#             a3 = random.randint(2, 4)  # b
+#             a4 = random.randint(2, 4)  # e
+#
+#             a5 = 10 - a1 - a2 - a3 - a4
+#             if a5 >= 0 and a5 <= 3:
+#                 list[7] = [16, [a1], [a2], [a3], [a4], [a5]]
+#                 break
+
+        t = ""
+        t1 = ""
+        for i in range(1, rowR + 1):
+            if i < rowR:
+                listString = listString + '        ' + 'a%s = random.randint(20, 30)' % i + '#这里写第%s小题的比例范围\n' % i
+                t = t + "- a%s" % i
+                t1 = t1 + ", [a%s]" % i
+            else:
+                listString = listString + '        ' + '\n'
+                listString = listString + '        ' + 'a%s = %s %s' % (i, total, t) + '\n'
+                listString = listString + '        ' + 'if 0 <= a%s <= 10:' % (i) + '\n'
+                t1 = t1 + ", [a%s]" % i
+                listString = listString + '        ' + '    ' + 'list[' + str(num) + '] = [' + str(list[num][0]) + '%s' % t1 + ']\n'
+                listString = listString + '        ' + '    ' + 'break' + '\n'
+
+        #print(listString)
+
+
+
+    except Exception as e:
+        print(e)
+
 
 def jumpToDanxuan(every, num):
     if every.attrs.has_key("anyjump") and every.attrs['anyjump'] != '0':#说明这题出现了就跳到anyjump去
@@ -344,7 +527,7 @@ def jumpToDanxuan(every, num):
                 global jump
 
                 if to <= 1:
-                    to = len(typeList) + 1
+                    to = len(typeList)
                     print 'to is: ', to
                 if to > num + 1:
                     jump = jump + 'if i == %s and AinB(choose[%s], [%s]):\n' % (num, num, count)
@@ -401,7 +584,7 @@ def jumpToDanxuan(every, num):
         print 'a'
 
 
-
+#将请求的内容解析
 def plain(s):
     Soup = BeautifulSoup(s.text)
     #i = Soup.fieldset.contents
@@ -417,6 +600,8 @@ def plain(s):
 
             typeList.append(type)
             if type == 1:
+                tiankong(every, num)
+            elif type == 2:
                 tiankong(every, num)
             elif type == 3:
                 danxuan(every, num)
@@ -437,9 +622,13 @@ def plain(s):
             elif type == 7:
                 xiala(every, num)
             elif type == 8:
-                pass #滑动
+                huaidong(every, num)
             elif type == 11:
                 paixu(every, num)
+            elif type == 9:
+                gundong(every, num)
+            elif type == 12:
+                quanzhong(every, num)
             else:
                 print '第 ' + str(num) + '题是未知的'
             num = num + 1
@@ -454,7 +643,7 @@ def plain(s):
             if every.attrs.has_key("type") == False:
                 continue
             if every.attrs.has_key("relation"):
-                print '#第 ' + str(num) + '题有relation'
+                #print '#第 ' + str(num) + '题有relation'
                 relation = every.attrs["relation"]
                 print relation
 
@@ -544,6 +733,12 @@ def plain(s):
                             relationString = relationString + (s % max(tihaolist))
 
                 else:
+                    #continue
+                    #if num in []:
+                    #    continue
+                    if relation == "-1":
+                        print("tiaoguo")
+                        continue
                     tihao = relation.split(",")[0]
                     xuanxiang = relation.split(",")[1]
                     if xuanxiang.find(";") != -1:
@@ -599,16 +794,9 @@ def plain(s):
 
 if __name__ == '__main__':
 
-    
-    while True:
-        f = open('aa.txt', 'a+')
-        f.write('total is \n')
-        f.close()
-        time.sleep(5)
-    curId = 'tJX3n7n'
+    curId = 'O1xgl1E'
+
     type = "wj"
-
-
 
 
     if type == "wj":
@@ -619,26 +807,35 @@ if __name__ == '__main__':
         host = "ks.wjx.top"
 
 
-
     if str(curId).isdigit():
         url = "https://%s/m/%s.aspx" % (host, curId)
     else:
         url = "https://%s/vm/%s.aspx" % (host, curId)
 
-    #url = "http://106.55.33.220:8080/a.html"
-    url = url + "?udsid=616926"
-    head = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7',
-        'Connection': 'keep-alive',
-        'Host': host,
-        'Upgrade-Insecure-Requests':'1',
-        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-        'X-Real-Ip':'1.1.1.1',
-    }
 
-    s = requests.get(url, headers=head, verify=False)
+
+    head = {
+        'Connection': 'keep-alive',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"macOS"',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-User': '?1',
+        'Sec-Fetch-Dest': 'document',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        "X-Forwarded-For": "1.2.3.4"
+    }
+    ip_proxy = "218.27.206.138:45163"
+    proxies = {"http": "http://%s" % ip_proxy,
+               "https": "https://%s" % ip_proxy}
+    s = requests.get(url, headers=head, verify=False)#, proxies=proxies)
+    print(s.text)
 
 
 
@@ -647,4 +844,3 @@ if __name__ == '__main__':
 
     for title in titleContent:
         print str(title).decode('unicode_escape')
-
